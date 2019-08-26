@@ -47,9 +47,73 @@ document.addEventListener('DOMContentLoaded', function () {
                 btnUpdate.type = 'submit';
                 btnUpdate.name = '_method';
                 btnUpdate.value = 'update';
-                btnUpdate.onclick = function (event) {
-                    updateTODO(event);
-                };
+                btnUpdate.addEventListener('click', function (ev) {
+                    ev.preventDefault();
+
+                    let item;
+                    let index;
+
+                    let form = btnUpdate.parentNode.parentNode.parentNode;
+
+                    let todo = form.querySelector('.todo');
+
+                    let label = todo.querySelector('label');
+
+                    if (label) {
+                        item = label.innerText;
+                    } else {
+                        let _input = todo.querySelector('input');
+
+                        item = _input.value;
+                    }
+
+                    index = todo.querySelector('[name="index"]').getAttribute('value');
+
+                    console.log({
+                        item: item,
+                        index: Number(index)
+                    });
+
+                    superagent
+                        .put(`${baseURL}/todo/`)
+                        .send({
+                            item: item,
+                            index: Number(index)
+                        })
+                        .set('accept', 'json')
+                        .then(function (res) {
+                            let form = btnUpdate.parentNode.parentNode.parentNode;
+
+                            let todo = form.querySelector('.todo');
+
+                            let item = res.body.item;
+                            let index = res.body.index;
+
+                            let _label = document.createElement('label');
+
+                            _label.classList.add('col-form-label');
+                            _label.innerText = item;
+
+                            _label.addEventListener('click', function () {
+                                loadItem(i);
+                            });
+
+                            let inputIndex = document.createElement('input');
+
+                            inputIndex.setAttribute('value', index);
+                            inputIndex.name = 'index'
+                            inputIndex.setAttribute('hidden', true);
+
+                            todo.innerHTML = '';
+                            todo.appendChild(_label);
+                            todo.appendChild(inputIndex);
+                        })
+                        .catch(function (err) {
+                            if (err.response) {
+                                showMessage(err.response.message);
+                            }
+                        });
+                }, false);
 
                 btnUpdate.classList.add('btn');
                 btnUpdate.classList.add('btn-secondary');
@@ -94,18 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(function (err) {
             if (err.reponse) {
-                let div = document.createElement('div');
-
-                div.classList.add('alert');
-                div.classList.add('alert-warning');
-                div.setAttribute('role', 'alert');
-
-                div.innerText = err.response.message;
-
-                let message = document.getElementById('message');
-
-                message.innerHTML = '';
-                message.appendChild(div);
+                showMessage(err.reponse.message);
             }
         });
 
@@ -144,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         }
-    })
+    });
 });
 
 function loadItem(index) {
@@ -161,7 +214,65 @@ function loadItem(index) {
 
                 input.classList.add('form-control');
                 input.name = 'todo';
-                input.value = text;
+                input.setAttribute('value', text);
+
+                input.addEventListener('keydown', function (event) {
+                    if (event.which === 13 || event.which === 27) {
+                        let form = event.target.parentNode.parentNode.parentNode;
+
+                        let todo = form.querySelector('.todo');
+
+                        let _input = todo.querySelector('input');
+
+                        let item = _input.value;
+                        let index = todo.querySelector('[name="index"]').getAttribute('value');
+
+                        console.log({
+                            item: item,
+                            index: Number(index)
+                        });
+
+                        superagent
+                        .put(`${baseURL}/todo/`)
+                        .send({
+                            item: item,
+                            index: Number(index)
+                        })
+                        .set('accept', 'json')
+                        .then(function (res) {
+                            let form = btnUpdate.parentNode.parentNode.parentNode;
+
+                            let todo = form.querySelector('.todo');
+
+                            let item = res.body.item;
+                            let index = res.body.index;
+
+                            let _label = document.createElement('label');
+
+                            _label.classList.add('col-form-label');
+                            _label.innerText = item;
+
+                            _label.addEventListener('click', function () {
+                                loadItem(i);
+                            });
+
+                            let inputIndex = document.createElement('input');
+
+                            inputIndex.setAttribute('value', index);
+                            inputIndex.name = 'index'
+                            inputIndex.setAttribute('hidden', true);
+
+                            todo.innerHTML = '';
+                            todo.appendChild(_label);
+                            todo.appendChild(inputIndex);
+                        })
+                        .catch(function (err) {
+                            if (err.response) {
+                                showMessage(err.response.message);
+                            }
+                        });
+                    }
+                });
 
                 let index = todos[i].querySelector('[name="index"]').getAttribute('value');
 
@@ -182,7 +293,7 @@ function loadItem(index) {
             if (!label) {
                 let input = todos[i].querySelector('input');
 
-                let text = input.value;
+                let text = input.getAttribute('value');
 
                 let label = document.createElement('label');
 
@@ -209,6 +320,21 @@ function loadItem(index) {
     }
 }
 
+function showMessage(msg) {
+    let div = document.createElement('div');
+
+    div.classList.add('alert');
+    div.classList.add('alert-warning');
+    div.setAttribute('role', 'alert');
+
+    div.innerText = msg;
+
+    let message = document.getElementById('message');
+
+    message.innerHTML = '';
+    message.appendChild(div);
+}
+
 function updateTODO(event) {
     let form = event.target.parentNode.parentNode.parentNode;
 
@@ -223,7 +349,7 @@ function updateTODO(event) {
 
         input.classList.add('form-control');
         input.name = 'todo';
-        input.value = text;
+        input.setAttribute('value', text);
 
         let index = todo.querySelector('[name="index"]').getAttribute('value');
 
@@ -259,7 +385,7 @@ function deleteTODO(event) {
 
         input.classList.add('form-control');
         input.name = 'todo';
-        input.value = text;
+        input.setAttribute('value', text);
 
         let index = todo.querySelector('[name="index"]').getAttribute('value');
 
