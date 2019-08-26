@@ -1,66 +1,118 @@
+let baseURL = 'http://localhost:8080';
+
 document.addEventListener('DOMContentLoaded', function () {
-    let todos = document.getElementsByClassName('todo');
+    superagent
+        .get(`${baseURL}/todos/`)
+        .set('accept', 'json')
+        .then(function (res) {
+            let todoList = document.getElementById('todos');
 
-    for (let i = 0; i < todos.length; i++) {
-        todos[i].addEventListener('click', function () {
-            for (let j = 0; j < todos.length; j++) {
-                let label = todos[j].querySelector('label');
+            let ts = res.body.todos;
 
-                if (i === j) {
-                    if (label) {
-                        let text = label.innerText;
+            console.log(ts);
 
-                        let input = document.createElement('input');
+            for (let i = 0; i < ts.length; i++) {
+                let label = document.createElement('label');
 
-                        input.classList.add('form-control');
-                        input.name = 'todo';
-                        input.value = text;
+                label.classList.add('col-form-label');
+                label.innerText = ts[i].item;
 
-                        let index = todos[j].querySelector('[name="index"]').getAttribute('value');
+                label.addEventListener('click', function () {
+                    loadItem(i);
+                });
 
-                        console.log(todos[j].querySelector('[name="index"]'));
-                        console.log(`index: ${index}`);
+                let input = document.createElement('input');
 
-                        let inputIndex = document.createElement('input');
+                input.name = 'index';
+                input.setAttribute('value', ts[i].index);
+                input.setAttribute('hidden', true);
 
-                        inputIndex.setAttribute('value', index);
-                        inputIndex.name = 'index'
-                        inputIndex.setAttribute('hidden', true);
+                let row = document.createElement('div');
 
-                        todos[i].innerHTML = '';
-                        todos[i].appendChild(input);
-                        todos[i].appendChild(inputIndex);
-                    }
-                } else {
-                    if (!label) {
-                        let input = todos[j].querySelector('input');
+                row.classList.add('offset-lg-1');
+                row.classList.add('col-lg-8');
+                row.classList.add('offset-md-1');
+                row.classList.add('col-md-7');
+                row.classList.add('todo');
 
-                        let text = input.value;
+                row.style.marginTop = '5pt';
+                row.style.marginBottom = '5pt';
 
-                        let label = document.createElement('label');
+                row.appendChild(label);
+                row.appendChild(input);
 
-                        label.classList.add('col-form-label');
-                        label.innerText = text;
+                let btnUpdate = document.createElement('button');
 
-                        let index = todos[j].querySelector('[name="index"]').getAttribute('value');
+                btnUpdate.innerText = 'Update';
+                btnUpdate.type = 'submit';
+                btnUpdate.name = '_method';
+                btnUpdate.value = 'update';
+                btnUpdate.onclick = function (event) {
+                    updateTODO(event);
+                };
 
-                        let inputIndex = document.createElement('input');
+                btnUpdate.classList.add('btn');
+                btnUpdate.classList.add('btn-secondary');
 
-                        inputIndex.setAttribute('value', index);
-                        inputIndex.name = 'index'
-                        inputIndex.setAttribute('hidden', true);
+                let btnDelete = document.createElement('button');
 
-                        todos[j].innerHTML = '';
-                        todos[j].appendChild(label);
-                        todos[j].appendChild(inputIndex);
-                    }
-                }
+                btnDelete.innerText = 'Delete';
+                btnDelete.type = 'submit';
+                btnDelete.name = '_method';
+                btnDelete.value = 'delete';
+                btnDelete.onclick = function (event) {
+                    deleteTODO(event);
+                };
+
+                btnDelete.classList.add('btn');
+                btnDelete.classList.add('btn-info');
+
+                let rowButtons = document.createElement('div');
+
+                rowButtons.classList.add('col-lg-3');
+                rowButtons.classList.add('col-md-4');
+
+                rowButtons.appendChild(btnUpdate);
+                rowButtons.appendChild(btnDelete);
+
+                let form = document.createElement('form');
+
+                form.action = '/todo/';
+                form.method = 'POST';
+
+                let div = document.createElement('div');
+
+                div.classList.add('row');
+
+                div.appendChild(row);
+                div.appendChild(rowButtons);
+
+                form.appendChild(div);
+
+                todoList.appendChild(form);
+            }
+        })
+        .catch(function (err) {
+            if (err.reponse) {
+                let div = document.createElement('div');
+
+                div.classList.add('alert');
+                div.classList.add('alert-warning');
+                div.setAttribute('role', 'alert');
+
+                div.innerText = err.response.message;
+
+                let message = document.getElementById('message');
+
+                message.innerHTML = '';
+                message.appendChild(div);
             }
         });
-    }
 
     document.addEventListener('keydown', function (event) {
         if (event.which === 27) {
+            let todos = document.getElementsByClassName('todo');
+
             for (let i = 0; i < todos.length; i++) {
                 let label = todos[i].querySelector('label');
 
@@ -73,6 +125,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     label.classList.add('col-form-label');
                     label.innerText = text;
+
+                    label.addEventListener('click', function () {
+                        loadItem(i);
+                    });
 
                     let index = todos[i].querySelector('[name="index"]').getAttribute('value');
 
@@ -91,7 +147,69 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 });
 
-function updateTODO (event) {
+function loadItem(index) {
+    let todos = document.getElementsByClassName('todo');
+
+    for (let i = 0; i < todos.length; i++) {
+        let label = todos[i].querySelector('label');
+
+        if (i === index) {
+            if (label) {
+                let text = label.innerText;
+
+                let input = document.createElement('input');
+
+                input.classList.add('form-control');
+                input.name = 'todo';
+                input.value = text;
+
+                let index = todos[i].querySelector('[name="index"]').getAttribute('value');
+
+                console.log(todos[i].querySelector('[name="index"]'));
+                console.log(`index: ${index}`);
+
+                let inputIndex = document.createElement('input');
+
+                inputIndex.setAttribute('value', index);
+                inputIndex.name = 'index'
+                inputIndex.setAttribute('hidden', true);
+
+                todos[i].innerHTML = '';
+                todos[i].appendChild(input);
+                todos[i].appendChild(inputIndex);
+            }
+        } else {
+            if (!label) {
+                let input = todos[i].querySelector('input');
+
+                let text = input.value;
+
+                let label = document.createElement('label');
+
+                label.classList.add('col-form-label');
+                label.innerText = text;
+
+                label.addEventListener('click', function () {
+                    loadItem(i);
+                });
+
+                let index = todos[i].querySelector('[name="index"]').getAttribute('value');
+
+                let inputIndex = document.createElement('input');
+
+                inputIndex.setAttribute('value', index);
+                inputIndex.name = 'index'
+                inputIndex.setAttribute('hidden', true);
+
+                todos[i].innerHTML = '';
+                todos[i].appendChild(label);
+                todos[i].appendChild(inputIndex);
+            }
+        }
+    }
+}
+
+function updateTODO(event) {
     let form = event.target.parentNode.parentNode.parentNode;
 
     let todo = form.querySelector('.todo');
@@ -127,7 +245,7 @@ function updateTODO (event) {
     form.submit();
 }
 
-function deleteTODO (event) {
+function deleteTODO(event) {
     let form = event.target.parentNode.parentNode.parentNode;
 
     let todo = form.querySelector('.todo');

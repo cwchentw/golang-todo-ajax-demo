@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"text/template"
 
@@ -12,18 +13,21 @@ func indexHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		template.ParseFiles("views/layout.html", "views/index.html", "views/head.html"),
 	)
 
-	var msg string
-
-	if r.Header.Get("Message") != "" {
-		msg = r.Header.Get("Message")
-
-		// Clean current message.
-		r.Header.Set("Message", "")
+	err := tmpl.ExecuteTemplate(w, "layout", struct {
+		Title string
+	}{
+		Title: "TODO List",
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
 	}
+}
 
+func getTODOHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	rows, err := db.Table("todos").Select("*").Rows()
 	if err != nil {
-		msg = "Unable to retrieve database"
+		ErrorMessage(w, http.StatusBadGateway, "Unable to retrieve database")
+		return
 	}
 
 	var todos []TODO
@@ -44,20 +48,14 @@ func indexHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		})
 	}
 
-	data := struct {
-		Title   string
-		TODOs   []TODO
-		Message string
-	}{
-		Title:   "TODO List",
-		TODOs:   todos,
-		Message: msg,
+	data := TODOs{
+		todos,
 	}
 
-	err = tmpl.ExecuteTemplate(w, "layout", data)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
+	json, _ := json.Marshal(data)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(json)
 }
 
 func updateTODOHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {

@@ -1,6 +1,6 @@
-# TODO List in HTML Forms
+# TODO List with Ajax
 
-This repo demos the usage of HTML forms with a web-based TODO list.
+This repo demos the usage of Ajax with a web-based TODO list.
 
 ## System Requirements
 

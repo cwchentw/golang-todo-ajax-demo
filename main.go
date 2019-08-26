@@ -15,12 +15,6 @@ import (
 	"github.com/urfave/negroni"
 )
 
-// TODO represents single TODO item.
-type TODO struct {
-	Item  string
-	Index uint
-}
-
 // TODOModel represents the model of a TODO list.
 type TODOModel struct {
 	ID   uint `gorm:"PRIMARY_KEY,AUTO_INCREMENT"`
@@ -83,6 +77,9 @@ func main() {
 
 	// Listen to the index page.
 	mux.GET("/", indexHandler)
+
+	// Load all TODO items.
+	mux.GET("/todos/", getTODOHandler)
 
 	// Respond to new TODO item.
 	mux.POST("/todo/", updateTODOHandler)
