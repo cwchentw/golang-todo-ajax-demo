@@ -66,18 +66,6 @@ func addTODOHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 
 	if todo == "" {
 		r.Header.Set("Message", "Empty TODO item")
-	} else if method == "update" {
-		index := r.FormValue("index")
-
-		if index == "" {
-			r.Header.Set("Message", "Unable to retrieve TODO item")
-		} else {
-			db.Table("todos").Where("id == ?", index).Update(struct {
-				Todo string `gorm:"todo"`
-			}{
-				Todo: todo,
-			})
-		}
 	} else if method == "delete" {
 		index := r.FormValue("index")
 
