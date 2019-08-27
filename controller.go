@@ -114,3 +114,30 @@ func updateTODOHandler(w http.ResponseWriter, r *http.Request, p httprouter.Para
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(json)
 }
+
+func deleteTODOHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	decoder := json.NewDecoder(r.Body)
+
+	var t TODO
+	err := decoder.Decode(&t)
+	if err != nil {
+		ErrorMessage(w, http.StatusUnprocessableEntity, "Failed to parse input")
+		return
+	}
+
+	db.Table("todos").Where("id == ?", t.Index).Delete(struct {
+		ID   uint
+		Todo string
+	}{})
+
+	data := struct {
+		Message string `json:"message"`
+	}{
+		Message: "TODO item deleted",
+	}
+
+	json, _ := json.Marshal(data)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(json)
+}

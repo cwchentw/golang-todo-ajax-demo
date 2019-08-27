@@ -81,10 +81,10 @@ func main() {
 	// Load all TODO items.
 	mux.GET("/todos/", getTODOHandler)
 
-	// Respond to new TODO item.
+	// Respond to a TODO item.
 	mux.POST("/todo/", addTODOHandler)
-
 	mux.PUT("/todo/", updateTODOHandler)
+	mux.DELETE("/todo/", deleteTODOHandler)
 
 	// Handle HTTP 404
 	mux.NotFound = http.HandlerFunc(notFoundHandler)

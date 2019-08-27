@@ -124,9 +124,51 @@ document.addEventListener('DOMContentLoaded', function () {
                 btnDelete.type = 'submit';
                 btnDelete.name = '_method';
                 btnDelete.value = 'delete';
-                btnDelete.onclick = function (event) {
-                    deleteTODO(event);
-                };
+                btnDelete.addEventListener('click', function (ev) {
+                    ev.preventDefault();
+
+                    let item;
+                    let index;
+
+                    let form = btnUpdate.parentNode.parentNode.parentNode;
+
+                    let todo = form.querySelector('.todo');
+
+                    let label = todo.querySelector('label');
+
+                    if (label) {
+                        item = label.innerText;
+                    } else {
+                        let _input = todo.querySelector('input');
+
+                        item = _input.value;
+                    }
+
+                    index = todo.querySelector('[name="index"]').getAttribute('value');
+
+                    console.log({
+                        item: item,
+                        index: Number(index)
+                    });
+
+                    superagent
+                        .delete(`${baseURL}/todo/`)
+                        .send({
+                            item: item,
+                            index: Number(index)
+                        })
+                        .set('accept', 'json')
+                        .then(function (res) {
+                            let form = btnUpdate.parentNode.parentNode.parentNode;
+
+                            form.parentNode.removeChild(form);
+                        })
+                        .catch(function (err) {
+                            if (err.response) {
+                                showMessage(err.response.message);
+                            }
+                        });
+                }, false);
 
                 btnDelete.classList.add('btn');
                 btnDelete.classList.add('btn-info');
