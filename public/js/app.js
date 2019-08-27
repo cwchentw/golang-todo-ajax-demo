@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .set('accept', 'json')
                 .then(function (res) {
+                    clearMessage();
+
                     console.log(res.body);
 
                     addTODO(res.body);
@@ -89,6 +91,8 @@ document.addEventListener('DOMContentLoaded', function () {
         .get(`${baseURL}/todos/`)
         .set('accept', 'json')
         .then(function (res) {
+            clearMessage();
+
             let ts = res.body.todos;
 
             console.log(ts);
@@ -178,6 +182,8 @@ function addTODO(todo) {
             })
             .set('accept', 'json')
             .then(function (res) {
+                clearMessage();
+
                 let form = btnUpdate.parentNode.parentNode.parentNode;
 
                 let todo = form.querySelector('.todo');
@@ -257,6 +263,8 @@ function addTODO(todo) {
             })
             .set('accept', 'json')
             .then(function (res) {
+                clearMessage();
+
                 let form = btnUpdate.parentNode.parentNode.parentNode;
 
                 form.parentNode.removeChild(form);
@@ -341,6 +349,8 @@ function loadItem(index) {
                             })
                             .set('accept', 'json')
                             .then(function (res) {
+                                clearMessage();
+
                                 let form = btnUpdate.parentNode.parentNode.parentNode;
 
                                 let _todo = form.querySelector('.todo');
@@ -438,4 +448,10 @@ function showMessage(msg) {
 
     message.innerHTML = '';
     message.appendChild(div);
+}
+
+function clearMessage() {
+    let message = document.getElementById('message');
+
+    message.innerHTML = '';
 }
