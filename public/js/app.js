@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 label.innerText = ts[i].item;
 
                 label.addEventListener('click', function () {
-                    loadItem(i);
+                    loadItem(ts[i].index);
                 });
 
                 let input = document.createElement('input');
@@ -85,6 +85,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             let form = btnUpdate.parentNode.parentNode.parentNode;
 
                             let todo = form.querySelector('.todo');
+                            let inputTODO = todo.querySelector('[name="index"]');
+                            let indexTODO = inputTODO.value;
 
                             let item = res.body.item;
                             let index = res.body.index;
@@ -95,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             _label.innerText = item;
 
                             _label.addEventListener('click', function () {
-                                loadItem(i);
+                                loadItem(indexTODO);
                             });
 
                             let inputIndex = document.createElement('input');
@@ -210,6 +212,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             for (let i = 0; i < todos.length; i++) {
                 let label = todos[i].querySelector('label');
+                let inputTODO = todos[i].querySelector('[name="index"]');
+                let indexTODO = inputTODO.value;
 
                 if (!label) {
                     let input = todos[i].querySelector('input');
@@ -222,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     label.innerText = text;
 
                     label.addEventListener('click', function () {
-                        loadItem(i);
+                        loadItem(indexTODO);
                     });
 
                     let index = todos[i].querySelector('[name="index"]').getAttribute('value');
@@ -247,9 +251,13 @@ function loadItem(index) {
 
     for (let i = 0; i < todos.length; i++) {
         let label = todos[i].querySelector('label');
+        let inputTODO = todos[i].querySelector('[name="index"]');
+        let indexTODO = inputTODO.value;
 
-        if (i === index) {
+        if (Number(indexTODO) === Number(index)) {
             if (label) {
+                console.log('Convert label to input');
+
                 let text = label.innerText;
 
                 let input = document.createElement('input');
@@ -284,7 +292,9 @@ function loadItem(index) {
                         .then(function (res) {
                             let form = btnUpdate.parentNode.parentNode.parentNode;
 
-                            let todo = form.querySelector('.todo');
+                            let _todo = form.querySelector('.todo');
+                            let _inputTODO = todo.querySelector('[name="index"]');
+                            let _indexTODO = inputTODO.value;
 
                             let item = res.body.item;
                             let index = res.body.index;
@@ -295,7 +305,7 @@ function loadItem(index) {
                             _label.innerText = item;
 
                             _label.addEventListener('click', function () {
-                                loadItem(i);
+                                loadItem(_indexTODO);
                             });
 
                             let inputIndex = document.createElement('input');
@@ -304,9 +314,9 @@ function loadItem(index) {
                             inputIndex.name = 'index'
                             inputIndex.setAttribute('hidden', true);
 
-                            todo.innerHTML = '';
-                            todo.appendChild(_label);
-                            todo.appendChild(inputIndex);
+                            _todo.innerHTML = '';
+                            _todo.appendChild(_label);
+                            _todo.appendChild(inputIndex);
                         })
                         .catch(function (err) {
                             if (err.response) {
@@ -338,12 +348,14 @@ function loadItem(index) {
                 let text = input.getAttribute('value');
 
                 let label = document.createElement('label');
+                let inputTODO = todos[i].querySelector('[name="index"]');
+                let indexTODO = inputTODO.value;
 
                 label.classList.add('col-form-label');
                 label.innerText = text;
 
                 label.addEventListener('click', function () {
-                    loadItem(i);
+                    loadItem(indexTODO);
                 });
 
                 let index = todos[i].querySelector('[name="index"]').getAttribute('value');
