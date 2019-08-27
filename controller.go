@@ -59,33 +59,37 @@ func getTODOHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }
 
 func addTODOHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	r.ParseForm()
+	decoder := json.NewDecoder(r.Body)
 
-	todo := r.FormValue("todo")
-	method := r.FormValue("_method")
-
-	if todo == "" {
-		r.Header.Set("Message", "Empty TODO item")
-	} else if method == "delete" {
-		index := r.FormValue("index")
-
-		if index == "" {
-			r.Header.Set("Message", "Unable to retrieve TODO item")
-		} else {
-			db.Table("todos").Where("id == ?", index).Delete(struct {
-				ID   uint
-				Todo string
-			}{})
-		}
-	} else {
-		db.Table("todos").Create(struct {
-			Todo string `gorm:"todo"`
-		}{
-			Todo: todo,
-		})
+	var t TODO
+	err := decoder.Decode(&t)
+	if err != nil {
+		ErrorMessage(w, http.StatusUnprocessableEntity, "Failed to parse input")
+		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	db.Table("todos").Create(struct {
+		Todo string `gorm:"todo"`
+	}{
+		Todo: t.Item,
+	})
+
+	var rec struct {
+		ID   uint
+		Todo string `gorm:"todo"`
+	}
+
+	db.Table("todos").Last(&rec)
+
+	data := TODO{
+		Index: rec.ID,
+		Item:  rec.Todo,
+	}
+
+	json, _ := json.Marshal(data)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(json)
 }
 
 func updateTODOHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
