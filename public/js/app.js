@@ -1,7 +1,9 @@
 let baseURL = 'http://localhost:8080';
 
 document.addEventListener('DOMContentLoaded', function () {
+    /* Event listeners related to TODO creation. */
     (function () {
+        /* The input entry listens to ENTER press event. */
         let form = document.querySelector('form');
 
         let input = form.querySelector('input');
@@ -14,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }, false);
 
+        /* The `Add` button listens to click event. */
         let btn = form.querySelector('button');
 
         btn.addEventListener('click', function (ev) {
@@ -48,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     })();
 
+    /* The document listens to ESC press event */
     document.addEventListener('keydown', function (event) {
         if (event.which === 27) {
             let todos = document.getElementsByClassName('todo');
@@ -87,6 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    /* Load initial TODO items */
     superagent
         .get(`${baseURL}/todos/`)
         .set('accept', 'json')
@@ -108,10 +113,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 });
 
+/* Add a TODO item. */
 function addTODO(todo) {
     let item = todo.item;
     let index = todo.index;
 
+    /* Create a label element for item text. */
     let label = document.createElement('label');
 
     label.classList.add('col-form-label');
@@ -121,12 +128,14 @@ function addTODO(todo) {
         loadItem(index);
     });
 
+    /* Create a hidden input element for item index. */
     let input = document.createElement('input');
 
     input.name = 'index';
     input.setAttribute('value', index);
     input.setAttribute('hidden', true);
 
+    /* A holder for the label and input elements. */
     let row = document.createElement('div');
 
     row.classList.add('offset-lg-1');
@@ -141,6 +150,7 @@ function addTODO(todo) {
     row.appendChild(label);
     row.appendChild(input);
 
+    /* Create a `Update` button. */
     let btnUpdate = document.createElement('button');
 
     btnUpdate.innerText = 'Update';
@@ -150,6 +160,7 @@ function addTODO(todo) {
     btnUpdate.addEventListener('click', function (ev) {
         ev.preventDefault();
 
+        /* Get TODO item and index from the page. */
         let item;
         let index;
 
@@ -174,6 +185,7 @@ function addTODO(todo) {
             index: Number(index)
         });
 
+        /* Send `PUT` event with Ajax. */
         superagent
             .put(`${baseURL}/todo/`)
             .send({
@@ -193,6 +205,7 @@ function addTODO(todo) {
                 let item = res.body.item;
                 let index = res.body.index;
 
+                /* Re-create new label and hidden input elements. */
                 let _label = document.createElement('label');
 
                 _label.classList.add('col-form-label');
@@ -205,9 +218,10 @@ function addTODO(todo) {
                 let inputIndex = document.createElement('input');
 
                 inputIndex.setAttribute('value', index);
-                inputIndex.name = 'index'
+                inputIndex.name = 'index';
                 inputIndex.setAttribute('hidden', true);
 
+                /* Clear old elements and append new elements. */
                 todo.innerHTML = '';
                 todo.appendChild(_label);
                 todo.appendChild(inputIndex);
@@ -222,6 +236,7 @@ function addTODO(todo) {
     btnUpdate.classList.add('btn');
     btnUpdate.classList.add('btn-secondary');
 
+    /* Create a `Delete` button. */
     let btnDelete = document.createElement('button');
 
     btnDelete.innerText = 'Delete';
@@ -231,6 +246,7 @@ function addTODO(todo) {
     btnDelete.addEventListener('click', function (ev) {
         ev.preventDefault();
 
+        /* Get TODO index from the page. */
         let item;
         let index;
 
@@ -255,6 +271,7 @@ function addTODO(todo) {
             index: Number(index)
         });
 
+        /* Send `DELETE` event with Ajax. */
         superagent
             .delete(`${baseURL}/todo/`)
             .send({
@@ -265,6 +282,7 @@ function addTODO(todo) {
             .then(function (res) {
                 clearMessage();
 
+                /* Remove the whole form. */
                 let form = btnUpdate.parentNode.parentNode.parentNode;
 
                 form.parentNode.removeChild(form);
@@ -279,6 +297,7 @@ function addTODO(todo) {
     btnDelete.classList.add('btn');
     btnDelete.classList.add('btn-info');
 
+    /* A holder for `Update` and `Delete` buttons. */
     let rowButtons = document.createElement('div');
 
     rowButtons.classList.add('col-lg-3');
@@ -287,6 +306,7 @@ function addTODO(todo) {
     rowButtons.appendChild(btnUpdate);
     rowButtons.appendChild(btnDelete);
 
+    /* Create a new HTML form. */
     let form = document.createElement('form');
 
     form.action = '/todo/';
@@ -301,10 +321,12 @@ function addTODO(todo) {
 
     form.appendChild(div);
 
+    /* Append the created form to the index page. */
     let todoList = document.getElementById('todos');
     todoList.appendChild(form);
 }
 
+/* Convert target label element into a input element while keeping the data. */
 function loadItem(index) {
     let todos = document.getElementsByClassName('todo');
 
@@ -313,7 +335,9 @@ function loadItem(index) {
         let inputTODO = todos[i].querySelector('[name="index"]');
         let indexTODO = inputTODO.value;
 
+        /* Only convert the label element when the index is matched. */
         if (Number(indexTODO) === Number(index)) {
+            /* Only convert it when `label` element exists. */
             if (label) {
                 console.log('Convert label to input');
 
@@ -326,6 +350,7 @@ function loadItem(index) {
                 input.setAttribute('value', text);
 
                 input.addEventListener('keydown', function (event) {
+                    /* Update data when pressing ENTER or ESC key. */
                     if (event.which === 13 || event.which === 27) {
                         let form = event.target.parentNode.parentNode.parentNode;
 
@@ -341,6 +366,7 @@ function loadItem(index) {
                             index: Number(index)
                         });
 
+                        /* Update the TODO item by sending a `PUT` event with Ajax. */
                         superagent
                             .put(`${baseURL}/todo/`)
                             .send({
@@ -355,11 +381,12 @@ function loadItem(index) {
 
                                 let _todo = form.querySelector('.todo');
                                 let _inputTODO = todo.querySelector('[name="index"]');
-                                let _indexTODO = inputTODO.value;
+                                let _indexTODO = _inputTODO.value;
 
                                 let item = res.body.item;
                                 let index = res.body.index;
 
+                                /* Re-create new label and input elements. */
                                 let _label = document.createElement('label');
 
                                 _label.classList.add('col-form-label');
@@ -375,6 +402,7 @@ function loadItem(index) {
                                 inputIndex.name = 'index'
                                 inputIndex.setAttribute('hidden', true);
 
+                                /* Clear old elements and append new elements. */
                                 _todo.innerHTML = '';
                                 _todo.appendChild(_label);
                                 _todo.appendChild(inputIndex);
@@ -403,11 +431,13 @@ function loadItem(index) {
                 todos[i].appendChild(inputIndex);
             }
         } else {
+            /* Convert input elments back to label elements while the element is not the target. */
             if (!label) {
                 let input = todos[i].querySelector('input');
 
                 let text = input.getAttribute('value');
 
+                /* Re-create label and input elements. */
                 let label = document.createElement('label');
                 let inputTODO = todos[i].querySelector('[name="index"]');
                 let indexTODO = inputTODO.value;
@@ -427,6 +457,7 @@ function loadItem(index) {
                 inputIndex.name = 'index'
                 inputIndex.setAttribute('hidden', true);
 
+                /* Clear old elements and append new elements. */
                 todos[i].innerHTML = '';
                 todos[i].appendChild(label);
                 todos[i].appendChild(inputIndex);
