@@ -439,39 +439,3 @@ function showMessage(msg) {
     message.innerHTML = '';
     message.appendChild(div);
 }
-
-function deleteTODO(event) {
-    let form = event.target.parentNode.parentNode.parentNode;
-
-    let todo = form.querySelector('.todo');
-
-    let label = todo.querySelector('label');
-
-    if (label) {
-        let text = label.innerText;
-
-        let input = document.createElement('input');
-
-        input.classList.add('form-control');
-        input.name = 'todo';
-        input.setAttribute('value', text);
-
-        let index = todo.querySelector('[name="index"]').getAttribute('value');
-
-        console.log(todo.querySelector('[name="index"]'));
-        console.log(`index: ${index}`);
-
-        let inputIndex = document.createElement('input');
-
-        inputIndex.setAttribute('value', index);
-        inputIndex.name = 'index'
-        inputIndex.setAttribute('hidden', true);
-
-        todo.innerHTML = '';
-        todo.appendChild(input);
-        todo.appendChild(inputIndex);
-    }
-
-    form.setAttribute('_method', 'delete');
-    form.submit();
-}
