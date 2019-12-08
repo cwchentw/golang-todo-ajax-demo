@@ -1,1 +1,1 @@
-go build -o myapp.exe main.go notFound.go controller.go data.go utils.go
+go build -o app.exe main.go notFound.go controller.go data.go utils.go

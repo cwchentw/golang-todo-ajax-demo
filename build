@@ -1,0 +1,2 @@
+#!/bin/sh
+go build -o app main.go notFound.go controller.go data.go utils.go
